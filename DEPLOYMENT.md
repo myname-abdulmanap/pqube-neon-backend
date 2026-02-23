@@ -13,7 +13,7 @@ Frontend di Vercel terpisah.
 │  │         api.yourdomain.com → backend:4000                    ││
 │  └──────────────────────────────────────────────────────────────┘│
 │                              ↓                                    │
-│                        npm-network                                │
+│              nginx-proxy-manager_default                          │
 │                              ↓                                    │
 │  ┌──────────────────────────────────────────────────────────────┐│
 │  │                    Docker Compose                            ││
@@ -67,11 +67,15 @@ cat ~/.ssh/id_ed25519
 
 ## Step 2: Setup di VPS
 
-### 2.1 Buat Network untuk NPM
+### 2.1 Cek Network NPM
+
+Network NPM biasanya sudah ada otomatis. Cek dengan:
 
 ```bash
-docker network create npm-network
+docker network ls | grep nginx-proxy-manager
 ```
+
+Harusnya ada: `nginx-proxy-manager_default`
 
 ### 2.2 Siapkan Directory
 
@@ -233,11 +237,11 @@ docker compose down -v
 
 ## Troubleshooting
 
-### Container tidak bisa connect ke npm-network
+### Container tidak bisa connect ke nginx-proxy-manager_default
 
 ```bash
-docker network ls | grep npm-network
-docker network create npm-network
+docker network ls | grep nginx-proxy-manager
+# Jika tidak ada, jalankan NPM dulu
 docker compose down
 docker compose up -d
 ```
