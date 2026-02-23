@@ -35,7 +35,7 @@ export const getUserById = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
 
     const user = await userService.findById(id);
 
@@ -115,7 +115,7 @@ export const updateUser = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const data: UpdateUserDto = req.body;
 
     // Check if email is being changed and if it's already in use
@@ -163,7 +163,7 @@ export const deleteUser = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
 
     // Prevent self-deletion
     if (req.user && req.user.userId === id) {

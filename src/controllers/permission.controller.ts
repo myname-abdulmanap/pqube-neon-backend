@@ -39,7 +39,7 @@ export const getPermissionById = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
 
     const permission = await permissionService.findById(id);
 
@@ -119,7 +119,7 @@ export const updatePermission = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const data: UpdatePermissionDto = req.body;
 
     // Check if name is being changed and if it already exists
@@ -167,7 +167,7 @@ export const deletePermission = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
 
     const deleted = await permissionService.delete(id);
 

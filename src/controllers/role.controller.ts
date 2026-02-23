@@ -40,7 +40,7 @@ export const getRoleById = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
 
     const role = await roleService.findById(id);
 
@@ -120,7 +120,7 @@ export const updateRole = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const data: UpdateRoleDto = req.body;
 
     // Check if name is being changed and if it already exists
@@ -168,7 +168,7 @@ export const deleteRole = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
 
     const deleted = await roleService.delete(id);
 
@@ -211,7 +211,7 @@ export const assignPermission = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const { permissionId }: { permissionId: string } = req.body;
 
     if (!permissionId) {
@@ -255,7 +255,8 @@ export const revokePermission = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { id, permissionId } = req.params;
+    const id = req.params.id as string;
+    const permissionId = req.params.permissionId as string;
 
     const revoked = await roleService.revokePermission(id, permissionId);
 
@@ -289,7 +290,7 @@ export const getRolePermissions = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
 
     const role = await roleService.findById(id);
 
