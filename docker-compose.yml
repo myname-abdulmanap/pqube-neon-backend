@@ -21,7 +21,7 @@ services:
 
   backend:
     image: ghcr.io/${GITHUB_REPO}:${TAG:-latest}
-    container_name: energy-backend
+    container_name: pqube-neon-backend
     restart: unless-stopped
     ports:
       - "4000:4000"
