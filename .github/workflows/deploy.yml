@@ -1,0 +1,88 @@
+name: Deploy Backend to VPS
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  BACKEND_IMAGE: ${{ github.repository }}
+
+jobs:
+  build-backend:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Extract metadata for Backend
+        id: meta-backend
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE }}
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix=
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' }}
+
+      - name: Build and push Backend image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta-backend.outputs.tags }}
+          labels: ${{ steps.meta-backend.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy:
+    needs: build-backend
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy Backend to VPS via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT }}
+          script: |
+            cd ${{ secrets.DEPLOY_PATH }}
+
+            # Login to GitHub Container Registry
+            echo ${{ secrets.GH_PAT }} | docker login ghcr.io -u ${{ secrets.GH_USERNAME }} --password-stdin
+
+            # Pull latest backend image
+            docker compose -f docker-compose.yml pull backend
+
+            # Restart backend service
+            docker compose -f docker-compose.yml up -d
+
+            # Wait for backend to be healthy
+            sleep 10
+
+            # Run database migrations
+            docker compose -f docker-compose.yml exec -T backend npx prisma migrate deploy
+
+            # Cleanup old images
+            docker image prune -f
+
+            echo "Backend deployment completed successfully!"
