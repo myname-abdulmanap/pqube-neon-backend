@@ -68,21 +68,21 @@ jobs:
             cd ${{ secrets.DEPLOY_PATH }}
 
             # Login to GitHub Container Registry
-            echo ${{ secrets.GH_PAT }} | docker login ghcr.io -u ${{ secrets.GH_USERNAME }} --password-stdin
+            echo ${{ secrets.GH_PAT }} | sudo docker login ghcr.io -u ${{ secrets.GH_USERNAME }} --password-stdin
 
             # Pull latest backend image
-            docker compose -f docker-compose.yml pull backend
+            sudo docker compose -f docker-compose.yml pull backend
 
             # Restart backend service
-            docker compose -f docker-compose.yml up -d
+            sudo docker compose -f docker-compose.yml up -d
 
             # Wait for backend to be healthy
             sleep 10
 
             # Run database migrations
-            docker compose -f docker-compose.yml exec -T backend npx prisma migrate deploy
+            sudo docker compose -f docker-compose.yml exec -T backend npx prisma migrate deploy
 
             # Cleanup old images
-            docker image prune -f
+            sudo docker image prune -f
 
             echo "Backend deployment completed successfully!"
