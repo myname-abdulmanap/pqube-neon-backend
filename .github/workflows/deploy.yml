@@ -73,7 +73,7 @@ jobs:
             # Pull latest backend image
             sudo docker compose -f docker-compose.yml pull backend
 
-            # Restart backend service
+            # Restart backend services
             sudo docker compose -f docker-compose.yml up -d
 
             # Wait for backend to be healthy
